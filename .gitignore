@@ -1,0 +1,8 @@
+#folders to ignore
+instance/
+__pycache__/
+
+#files to ignore
+config.py
+#Dockerfile
+*.sqlite
