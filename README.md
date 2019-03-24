@@ -55,39 +55,39 @@ http://0.0.0.0:8080/weather/london/20060401
 ## Deploying on GCP
 
 ################################################################################
-##   1.       Preparing for cluster deployment     #############################
-##  on gcloud
+## 1.       Preparing for cluster deployment          ##########################
+on gcloud
 ################################################################################
 
-# week 9
-gcloud config set project intrepid-abacus-229322
-gcloud config set compute/zone europe-west2-b
-https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer
-# export your project ID to an environment variable, called PROJECT_ID:
-export PROJECT_ID="$(gcloud config get-value project -q)"
+
+	gcloud config set project intrepid-abacus-229322
+	gcloud config set compute/zone europe-west2-b
+
+export your project ID to an environment variable, called PROJECT_ID:
+	export PROJECT_ID="$(gcloud config get-value project -q)"
 
 
-# build our docker image:
-docker build -t gcr.io/${PROJECT_ID}/my_first_app_image:v1 .
+build our docker image:
+	docker build -t gcr.io/${PROJECT_ID}/my_first_app_image:v1 .
 
 
-# delete
-# docker rmi gcr.io/${PROJECT_ID}/my_first_app_image:v1 --force
+To delete
+	docker rmi gcr.io/${PROJECT_ID}/my_first_app_image:v1 --force
 
 
-# push our image to the gcr private repository of google cloud:
-gcloud auth configure-docker
---> y to confirm
+push our image to the gcr private repository of google cloud:
+	gcloud auth configure-docker
+		--> y to confirm
 docker push gcr.io/${PROJECT_ID}/my_first_app_image:v1
 
 
-# run container “locally” (on the google shell computer) to make sure all is fine:
-docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
+run container “locally” (on the google shell computer) to make sure all is fine:
+	docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
 
-# docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
+docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
 
 ################################################################################
-##  2.        Preparing a container cluster   ###############################
+##  2.        Preparing a container cluster   ##################################
 ################################################################################
 
 # creates a 3 node cluster named mini-proj-cluster:
