@@ -13,6 +13,8 @@ You can also check the current currency exchange rate for any two given world cu
 ## Setup
 How to check it out, install and get the application running
 
+The assumption is you have a Cassandra cluster setup already, with a keyspace called "weatherhistory" and a table called "weatherhistory" loaded from the csv file provided "weatherHistory.csv". Steps to create and load this file is provided in the appendix below.
+
 
 External API Registration
 1.
@@ -39,3 +41,114 @@ API_KEY_CURRENCY = "Currency API Key"
 DEBUG = False
 
   3.2 during development, you can change this DEBUG to "True"
+
+## RESTfull app
+The application provides historical weather data (stored in a Cassandra database) via a REST API.
+http://[HOSTNAME]/weather/[city]/[date]
+
+example 
+http://0.0.0.0:8080/weather/london/20060401
+
+
+
+
+## Deploying on GCP
+
+################################################################################
+##   1.       Preparing for cluster deployment     #############################
+##  on gcloud
+################################################################################
+
+# week 9
+gcloud config set project intrepid-abacus-229322
+gcloud config set compute/zone europe-west2-b
+https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer
+# export your project ID to an environment variable, called PROJECT_ID:
+export PROJECT_ID="$(gcloud config get-value project -q)"
+
+
+# build our docker image:
+docker build -t gcr.io/${PROJECT_ID}/my_first_app_image:v1 .
+
+
+# delete
+# docker rmi gcr.io/${PROJECT_ID}/my_first_app_image:v1 --force
+
+
+# push our image to the gcr private repository of google cloud:
+gcloud auth configure-docker
+--> y to confirm
+docker push gcr.io/${PROJECT_ID}/my_first_app_image:v1
+
+
+# run container “locally” (on the google shell computer) to make sure all is fine:
+docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
+
+# docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
+
+################################################################################
+##  2.        Preparing a container cluster   ###############################
+################################################################################
+
+# creates a 3 node cluster named mini-proj-cluster:
+gcloud container clusters create mini-proj-cluster --num-nodes=3
+
+# see the nodes that are created (each a separate VM)
+gcloud compute instances list
+
+################################################################################
+##  3.        Deploying our application   ###############################
+################################################################################
+
+kubectl run mini-proj-cluster --image=gcr.io/${PROJECT_ID}/my_first_app_image:v1 --port 8080
+
+# kubectl delete deployment mini-proj-cluster
+
+# see the pods created:
+kubectl get pods
+
+
+# To expose our cluster to the external world (internet!), we need to create a “service” resource, which provides
+# networking and IP support to our application’s pods: (all in one line):
+
+kubectl expose deployment mini-proj-cluster --type=LoadBalancer --port 80 --target-port 8080
+
+# kubectl delete service mini-proj-cluster
+
+# get the external IP address that is assigned to our deployment by running:
+kubectl get service
+
+http://35.246.104.30/
+
+http://35.246.104.30/weather/london/20060401
+
+
+
+# To see a brief status of our deployment:
+kubectl get deployment mini-proj-cluster
+	#Specially, pay attention under column AVAILABLE.
+# For a more detailed status report, issue:
+kubectl describe deployment mini-proj-cluster
+
+# If all is fine, it could be that the firewall ruleset does not allow external HTTP requests to our 
+#load-balancer. Check the firewall ruleset by issuing:
+gcloud compute firewall-rules list
+#Look for a line that allows INGRESS for "DIRECTION" and for "ALLOW" it should be tcp:80 and for "DISABLED" should # be False.
+
+
+
+
+################################################################################
+##  4.        Scaling up our application   ###############################
+################################################################################
+
+kubectl scale deployment mini-proj-cluster --replicas=2
+
+
+# You can check the number of replicas by issuing:
+kubectl get deployment mini-proj-cluster
+
+kubectl get pods
+
+kubectl get service mini-proj-cluster
+
