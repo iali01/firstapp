@@ -36,9 +36,9 @@ API_KEY_CURRENCY = "Currency API Key"
 ```
 3. Create a file called "config.py" in the root folder.
   3.1 Edit the file and add 
-
+```
 DEBUG = False
-
+```
   3.2 during development, you can change this DEBUG to "True"
 
 ## RESTfull app
