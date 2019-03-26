@@ -25,21 +25,22 @@ select "Free Plan" option and sign-up to optain API key
 
 
 
-Initial setup
+###### Initial setup
+
 2. Create a folder called "instance"
    - Within instance folder, create a file called "config.py"
-    - Edit the file and add the following - replacing the API key from above step after registering.
+     - Edit the file and add the following - replacing the API key from above step after registering.
 ```
 DEBUG = False
 API_KEY_WEATHER = "Weather API Key"
 API_KEY_CURRENCY = "Currency API Key"
 ```
 3. Create a file called "config.py" in the root folder.
-  3.1 Edit the file and add 
+   3.1 Edit the file and add 
 ```
 DEBUG = False
 ```
-  3.2 during development, you can change DEBUG to "True"
+4. during development, you can change DEBUG to "True"
 
 ## RESTfull app
 The application provides historical weather data (stored in a Cassandra database) via a REST API.
