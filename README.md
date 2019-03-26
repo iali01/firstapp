@@ -16,6 +16,7 @@ The assumption is you have a Cassandra cluster setup already, with a keyspace ca
 
 
 1. External API Registration
+
 Weather - https://openweathermap.org/api 
 select "Current weather data" option and register to optain API key
 
@@ -26,8 +27,8 @@ select "Free Plan" option and sign-up to optain API key
 
 Initial setup
 2. Create a folder called "instance"
-   2.1 Within instance folder, create a file called "config.py"
-       2.2 Edit the file and add the following - replacing the API key from above step after registering.
+   - Within instance folder, create a file called "config.py"
+    - Edit the file and add the following - replacing the API key from above step after registering.
 ```
 DEBUG = False
 API_KEY_WEATHER = "Weather API Key"
@@ -38,7 +39,7 @@ API_KEY_CURRENCY = "Currency API Key"
 ```
 DEBUG = False
 ```
-  3.2 during development, you can change this DEBUG to "True"
+  3.2 during development, you can change DEBUG to "True"
 
 ## RESTfull app
 The application provides historical weather data (stored in a Cassandra database) via a REST API.
