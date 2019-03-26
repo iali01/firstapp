@@ -58,8 +58,7 @@ http://0.0.0.0:8080/weather/london/20060401
 ## Deploying on GCP
 
 ################################################################################
-1.       Preparing for cluster deployment          ##########################
-on gcloud
+1.Preparing for cluster deployment (on gcloud)        ##########################
 ################################################################################
 
 ```
@@ -92,12 +91,13 @@ docker push gcr.io/${PROJECT_ID}/my_first_app_image:v1
 ```
 
 run container “locally” (on the google shell computer) to make sure all is fine:
-	docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
+```
+docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
 
 docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
-
+```
 ################################################################################
-2.        Preparing a container cluster   ##################################
+2.Preparing a container cluster               ##################################
 ################################################################################
 
 creates a 3 node cluster named cassandra:
@@ -107,40 +107,52 @@ gcloud container clusters create cassandra --num-nodes=3
 gcloud compute instances list
 
 ################################################################################
-3.        Deploying our application   ###############################
+3.Deploying our application                      ###############################
 ################################################################################
 
-kubectl run mini-proj-cluster --image=gcr.io/${PROJECT_ID}/my_first_app_image:v1 --port 8080
-
-# kubectl delete deployment cassandra
-
-# see the pods created:
+```
+kubectl run cassandra --image=gcr.io/${PROJECT_ID}/my_first_app_image:v1 --port 8080
+```
+To delete deployment
+```
+kubectl delete deployment cassandra
+```
+see the pods created:
+```
 kubectl get pods
+```
 
-
-# To expose our cluster to the external world (internet!), we need to create a “service” resource, which provides
-# networking and IP support to our application’s pods: (all in one line):
-
+To expose our cluster to the external world (internet!), we need to create a “service” resource, which provides
+networking and IP support to our application’s pods: (all in one line):
+```
 kubectl expose deployment cassandra --type=LoadBalancer --port 80 --target-port 8080
+```
+To delete service
+```
+kubectl delete service cassandra
+```
+get the external IP address that is assigned to our deployment by running:
 
-# kubectl delete service cassandra
-
-# get the external IP address that is assigned to our deployment by running:
+```
 kubectl get service
+```
 
+check url: my ip address was;
 http://35.246.104.30/
 
 http://35.246.104.30/weather/london/20060401
 
 
 
-# To see a brief status of our deployment:
+To see a brief status of our deployment:
+```
 kubectl get deployment cassandra
-	#Specially, pay attention under column AVAILABLE.
-# For a more detailed status report, issue:
+```
+#Specially, pay attention under column AVAILABLE.
+#For a more detailed status report, issue:
 kubectl describe deployment cassandra
 
-# If all is fine, it could be that the firewall ruleset does not allow external HTTP requests to our 
+#If all is fine, it could be that the firewall ruleset does not allow external HTTP requests to our 
 #load-balancer. Check the firewall ruleset by issuing:
 gcloud compute firewall-rules list
 #Look for a line that allows INGRESS for "DIRECTION" and for "ALLOW" it should be tcp:80 and for "DISABLED" should # be False.
@@ -149,16 +161,18 @@ gcloud compute firewall-rules list
 
 
 ################################################################################
-4.        Scaling up our application   ###############################
+4.Scaling up our application   ###############################
 ################################################################################
-
+```
 kubectl scale deployment cassandra --replicas=2
+```
 
-
-# You can check the number of replicas by issuing:
+You can check the number of replicas by issuing:
+```
 kubectl get deployment cassandra
 
 kubectl get pods
 
 kubectl get service cassandra
 
+```
