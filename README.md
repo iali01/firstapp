@@ -1,4 +1,4 @@
-##My REST Application
+# My REST Application
 
 ## Description about the app
 This Flask application enables you to get the weather of a certain city and it also has a currency converter.
@@ -17,8 +17,7 @@ The assumption is you have a Cassandra cluster setup already, with a keyspace ca
 
 
 External API Registration
-1.
-Weather - https://openweathermap.org/api 
+1. Weather - https://openweathermap.org/api 
 select "Current weather data" option and register to optain API key
 
 Currency - https://openexchangerates.org
@@ -30,11 +29,11 @@ Initial setup
 2. Create a folder called "instance"
   2.1 Within instance folder, create a file called "config.py"
   2.2 Edit the file and add the following - replacing the API key from above step after registering.
-
+```
 DEBUG = False
 API_KEY_WEATHER = "Weather API Key"
 API_KEY_CURRENCY = "Currency API Key"
-
+```
 3. Create a file called "config.py" in the root folder.
   3.1 Edit the file and add 
 
