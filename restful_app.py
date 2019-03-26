@@ -2,24 +2,27 @@ from flask import Flask
 import json
 from requests.utils import requote_uri
 import datetime
+# To transform the data to a JSON object
 from flask import jsonify
 import urllib
 import urllib.parse
 import urllib.request
-
+#for caching results
 import requests_cache
-#from flask import Flask
 from flask import render_template
 from flask import request
 
-#hostname
+#for ip address
 import socket
 
-#cassandra
+# connecting to cassandra
 from cassandra.cluster import Cluster
+# 'cassandra' is the name of the cluster, this maybe different in your case
 cluster = Cluster(['cassandra'], connect_timeout=30)
 session = cluster.connect()
 
+#caching, results are cached in a file called 'api_cache' in the root app directory
+#using 'sqlite' which will expire in 36000 secs
 requests_cache.install_cache('api_cache', backend='sqlite', expire_after=36000)
 
 app = Flask(__name__, instance_relative_config=True)
@@ -31,10 +34,24 @@ app.config.from_pyfile('config.py')
 WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&APPID=" + app.config['API_KEY_WEATHER']
 CURRENCY_URL = "https://openexchangerates.org//api/latest.json?app_id=" + app.config['API_KEY_CURRENCY']
 
+# defaults for pick list on home page
 DEFAULTS = {'city': 'London,UK',
             'currency_from': 'GBP',
             'currency_to': 'USD'
             }
+
+#This returns a single IP which is the primary (the one with a default route).
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 
 
 @app.route("/404/")
@@ -42,10 +59,9 @@ def not_found():
     return render_template("404.html"), 404
 
 
-@app.route("/weather/<city>/<date>")
+@app.route("/weather/<city>/<date>", methods=['GET'])
 def historic_weather(city="London", date="20060401"):
-    weather_file = 'weather.json'
-    weather_data = json.load(open(weather_file))
+    weather_data = session.execute("""Select * From weatherhistory.stats where city = '{}' and date = '{}' ALLOW FILTERING""".format(city,date))
 
     data = []
 
@@ -56,11 +72,12 @@ def historic_weather(city="London", date="20060401"):
     if len(data) == 0:
         return jsonify("Resource NOT FOUND!"), 404
 
-    return jsonify(add_links(date=date, data=data, city=city))
+    return jsonify(add_links(date=date, data=data, city=city)), 200
 
-
+#returns the list of results and renders them in the browser as JSON.
 def add_links(city, date, data):
-    host = socket.gethostname()
+    #host = socket.gethostname()
+    host = get_ip()
 
     next_date = datetime.datetime.strptime(date, "%Y%m%d").date() + datetime.timedelta(days=1)
     previous_day = datetime.datetime.strptime(date, "%Y%m%d").date() + datetime.timedelta(days=-1)
@@ -79,11 +96,6 @@ def add_links(city, date, data):
 
 @app.route("/")
 def home():
-    # get customised headlines, based on user input or default
-    # publication = request.args.get('publication')
-    # if not publication:
-    #     publication = DEFAULTS['publication']
-    # articles = get_news(publication)
     # get customised weather based on user input or default
     city = request.args.get('city')
     if not city:
@@ -97,10 +109,9 @@ def home():
     if not currency_to:
         currency_to = DEFAULTS['currency_to']
     rate, currencies = get_rate(currency_from, currency_to)
-    return render_template("home.html", weather=weather,  # articles=articles,
+    return render_template("home.html", weather=weather,
                            currency_from=currency_from, currency_to=currency_to, rate=rate,
                            currencies=sorted(currencies))
-
 
 def get_rate(frm, to):
     all_currency = urllib.request.urlopen(CURRENCY_URL).read()
@@ -108,12 +119,6 @@ def get_rate(frm, to):
     frm_rate = parsed.get(frm.upper())
     to_rate = parsed.get(to.upper())
     return to_rate / frm_rate, parsed.keys()
-
-
-# def get_news(publication):
-#     feed = feedparser.parse(RSS_FEEDS[publication])
-#     return feed['entries']
-
 
 def get_weather(query):
     query = urllib.parse.quote(query)
@@ -131,6 +136,4 @@ def get_weather(query):
 
 
 if __name__ == "__main__":
-    #app.run(port=8080, debug=False)
-    #for Docker image
-    app.run(host='0.0.0.0',port=8080, debug=False) ##, ssl_context='adhoc')
+    app.run(host='0.0.0.0',port=8080, debug=False)
