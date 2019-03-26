@@ -58,7 +58,7 @@ http://0.0.0.0:8080/weather/london/20060401
 ## Deploying on GCP
 
 ################################################################################
-1.Preparing for cluster deployment (on gcloud)        ##########################
+1. Preparing for cluster deployment (on gcloud)        ##########################
 ################################################################################
 
 ```
@@ -97,17 +97,17 @@ docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
 docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
 ```
 ################################################################################
-2.Preparing a container cluster               ##################################
+2. Preparing a container cluster               ##################################
 ################################################################################
 
 creates a 3 node cluster named cassandra:
 gcloud container clusters create cassandra --num-nodes=3
 
-# see the nodes that are created (each a separate VM)
+see the nodes that are created (each a separate VM)
 gcloud compute instances list
 
 ################################################################################
-3.Deploying our application                      ###############################
+3. Deploying our application                      ###############################
 ################################################################################
 
 ```
