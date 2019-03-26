@@ -1,6 +1,5 @@
-# My REST Application
+# Current weather and currency converter REST Application
 
-## Description about the app
 This Flask application enables you to get the weather of a certain city and it also has a currency converter.
 
 The application uses two REST API's, available publicly for free but requires registration.
@@ -11,7 +10,7 @@ You can also check the current currency exchange rate for any two given world cu
 
 
 ## Setup
-How to check it out, install and get the application running
+
 
 The assumption is you have a Cassandra cluster setup already, with a keyspace called "weatherhistory" and a table called "weatherhistory" loaded from the csv file provided "weatherHistory.csv". Steps to create and load this file is provided in the appendix below.
 
