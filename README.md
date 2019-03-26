@@ -51,34 +51,45 @@ http://0.0.0.0:8080/weather/london/20060401
 
 
 
+
+
+
+
 ## Deploying on GCP
 
 ################################################################################
-## 1.       Preparing for cluster deployment          ##########################
+1.       Preparing for cluster deployment          ##########################
 on gcloud
 ################################################################################
 
-
-	gcloud config set project intrepid-abacus-229322
-	gcloud config set compute/zone europe-west2-b
+```
+gcloud config set project intrepid-abacus-229322
+gcloud config set compute/zone europe-west2-b
+```
 
 export your project ID to an environment variable, called PROJECT_ID:
-	export PROJECT_ID="$(gcloud config get-value project -q)"
-
+```
+export PROJECT_ID="$(gcloud config get-value project -q)"
+```
 
 build our docker image:
-	docker build -t gcr.io/${PROJECT_ID}/my_first_app_image:v1 .
+```
+docker build -t gcr.io/${PROJECT_ID}/my_first_app_image:v1 .
+```
 
-
-To delete
-	docker rmi gcr.io/${PROJECT_ID}/my_first_app_image:v1 --force
-
+If you need to to delete
+```
+docker rmi gcr.io/${PROJECT_ID}/my_first_app_image:v1 --force
+```
 
 push our image to the gcr private repository of google cloud:
-	gcloud auth configure-docker
-		--> y to confirm
+```
+gcloud auth configure-docker
+```
+y to confirm
+```
 docker push gcr.io/${PROJECT_ID}/my_first_app_image:v1
-
+```
 
 run container “locally” (on the google shell computer) to make sure all is fine:
 	docker run --rm -p 8080:8080 gcr.io/${PROJECT_ID}/my_first_app_image:v1
@@ -86,22 +97,22 @@ run container “locally” (on the google shell computer) to make sure all is f
 docker run --rm -p 8080:8080 gcr.io/intrepid-abacus-229322/my_first_app_image:v1
 
 ################################################################################
-##  2.        Preparing a container cluster   ##################################
+2.        Preparing a container cluster   ##################################
 ################################################################################
 
-# creates a 3 node cluster named mini-proj-cluster:
-gcloud container clusters create mini-proj-cluster --num-nodes=3
+creates a 3 node cluster named cassandra:
+gcloud container clusters create cassandra --num-nodes=3
 
 # see the nodes that are created (each a separate VM)
 gcloud compute instances list
 
 ################################################################################
-##  3.        Deploying our application   ###############################
+3.        Deploying our application   ###############################
 ################################################################################
 
 kubectl run mini-proj-cluster --image=gcr.io/${PROJECT_ID}/my_first_app_image:v1 --port 8080
 
-# kubectl delete deployment mini-proj-cluster
+# kubectl delete deployment cassandra
 
 # see the pods created:
 kubectl get pods
@@ -110,9 +121,9 @@ kubectl get pods
 # To expose our cluster to the external world (internet!), we need to create a “service” resource, which provides
 # networking and IP support to our application’s pods: (all in one line):
 
-kubectl expose deployment mini-proj-cluster --type=LoadBalancer --port 80 --target-port 8080
+kubectl expose deployment cassandra --type=LoadBalancer --port 80 --target-port 8080
 
-# kubectl delete service mini-proj-cluster
+# kubectl delete service cassandra
 
 # get the external IP address that is assigned to our deployment by running:
 kubectl get service
@@ -124,10 +135,10 @@ http://35.246.104.30/weather/london/20060401
 
 
 # To see a brief status of our deployment:
-kubectl get deployment mini-proj-cluster
+kubectl get deployment cassandra
 	#Specially, pay attention under column AVAILABLE.
 # For a more detailed status report, issue:
-kubectl describe deployment mini-proj-cluster
+kubectl describe deployment cassandra
 
 # If all is fine, it could be that the firewall ruleset does not allow external HTTP requests to our 
 #load-balancer. Check the firewall ruleset by issuing:
@@ -138,16 +149,16 @@ gcloud compute firewall-rules list
 
 
 ################################################################################
-##  4.        Scaling up our application   ###############################
+4.        Scaling up our application   ###############################
 ################################################################################
 
-kubectl scale deployment mini-proj-cluster --replicas=2
+kubectl scale deployment cassandra --replicas=2
 
 
 # You can check the number of replicas by issuing:
-kubectl get deployment mini-proj-cluster
+kubectl get deployment cassandra
 
 kubectl get pods
 
-kubectl get service mini-proj-cluster
+kubectl get service cassandra
 
