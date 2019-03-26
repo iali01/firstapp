@@ -16,8 +16,8 @@ How to check it out, install and get the application running
 The assumption is you have a Cassandra cluster setup already, with a keyspace called "weatherhistory" and a table called "weatherhistory" loaded from the csv file provided "weatherHistory.csv". Steps to create and load this file is provided in the appendix below.
 
 
-External API Registration
-1. Weather - https://openweathermap.org/api 
+1. External API Registration
+Weather - https://openweathermap.org/api 
 select "Current weather data" option and register to optain API key
 
 Currency - https://openexchangerates.org
@@ -27,8 +27,8 @@ select "Free Plan" option and sign-up to optain API key
 
 Initial setup
 2. Create a folder called "instance"
-  2.1 Within instance folder, create a file called "config.py"
-  2.2 Edit the file and add the following - replacing the API key from above step after registering.
+   2.1 Within instance folder, create a file called "config.py"
+       2.2 Edit the file and add the following - replacing the API key from above step after registering.
 ```
 DEBUG = False
 API_KEY_WEATHER = "Weather API Key"
