@@ -35,12 +35,11 @@ DEBUG = False
 API_KEY_WEATHER = "Weather API Key"
 API_KEY_CURRENCY = "Currency API Key"
 ```
-3. Create a file called "config.py" in the root folder.
-   3. Edit the file and add 
+3. Create a file called "config.py" in the root folder and edit the file and add follow; 
 ```
 DEBUG = False
 ```
-4. during development, you can change DEBUG to "True"
+4. during development, you can change DEBUG to "True" but for security reasons, it is strongly advisable to set it to "False"
 
 ## RESTfull app
 The application provides historical weather data (stored in a Cassandra database) via a REST API.
