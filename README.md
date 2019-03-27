@@ -25,7 +25,7 @@ select "Free Plan" option and sign-up to optain API key
 
 
 
-###### Initial setup
+#### Initial setup
 
 2. Create a folder called "instance"
    - Within instance folder, create a file called "config.py"
@@ -36,7 +36,7 @@ API_KEY_WEATHER = "Weather API Key"
 API_KEY_CURRENCY = "Currency API Key"
 ```
 3. Create a file called "config.py" in the root folder.
-   3.1 Edit the file and add 
+   3. Edit the file and add 
 ```
 DEBUG = False
 ```
