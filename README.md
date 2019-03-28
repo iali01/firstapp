@@ -181,13 +181,79 @@ kubectl get service cassandra
 
 
 
-
-
-
-
 #########################################################
-## Creating a Cassadra Database (on gcloud)
+## Cassandra in Kubernetes
 #########################################################
 
+Set the region and zone for our new cluster
+```
+gcloud config set compute/zone europe-west2-b
+export PROJECT_ID="$(gcloud config get-value project -q)"
+```
 
 
+downloads
+```
+wget -O cassandra-peer-service.yml http://tinyurl.com/yyxnephy
+wget -O cassandra-service.yml http://tinyurl.com/y65czz8e
+wget -O cassandra-replication-controller.yml http://tinyurl.com/y2crfsl8
+```
+
+run components
+```
+kubectl create -f cassandra-peer-service.yml
+kubectl create -f cassandra-service.yml
+kubectl create -f cassandra-replication-controller.yml
+```
+
+Check that the single container is running correctly:
+```
+kubectl get pods -l name=cassandra
+```
+and if so we can can scale up our number of nodes via our replication-controller:
+```
+kubectl scale rc cassandra --replicas=3
+```
+
+Pick one of your containers, we must now check that the ring has been formed between all of the Cassandra instances:
+```
+kubectl exec -it cassandra-2c7gw -- nodetool status
+```
+
+#########################################################
+#### copy and create data in Cassandra
+#########################################################
+
+Using the same container, copy our data from the previous section:
+```
+kubectl cp weatherHistory.csv cassandra-9v6dk:/weatherHistory.csv
+```
+
+run cqlsh inside the container:
+```
+kubectl exec -it cassandra-9v6dk cqlsh
+```
+
+create a keyspace for the data to be inserted into.
+```
+CREATE KEYSPACE weatherhistory WITH REPLICATION =
+{'class' : 'SimpleStrategy', 'replication_factor' : 2};
+```
+
+Create the table for our stats and ingest the CSV via copy:
+```
+CREATE TABLE weatherhistory.stats (City text,
+Date int, Formatted_Date text PRIMARY KEY, Summary text, Precip_Type text, Temperature float, Daily_Summary text);
+```
+
+copy the data from our csv into the database
+```
+COPY weatherhistory.stats(City,Date,Formatted_Date,Summary,Precip_Type,Temperature,Daily_Summary)
+FROM 'weatherHistory.csv'
+WITH DELIMITER=',' AND HEADER=FALSE;
+```
+
+Check the data was inserted
+```
+select count(*) from weatherhistory.stats where city = 'London' ALLOW FILTERING;
+```
